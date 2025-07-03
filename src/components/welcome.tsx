@@ -1,23 +1,9 @@
-'use client'
-
 import React from 'react';
-import { HoverBorderGradient } from './ui/hover-border-gradient';
+import { Button } from './ui/button';
 
-const Welcome: React.FC = () => {
+const Welcome: React.FC<{ onNext?: () => void }> = ({ onNext }) => {
     return (
-        <div className="min-h-screen text-white flex flex-col items-center justify-center font-sans">
-            {/* Progress dots */}
-            <div className="flex gap-2 mb-8">
-                {[0, 1, 2, 3].map(i => (
-                    <div
-                        key={i}
-                        className={
-                            `w-2 h-2 rounded-full ` +
-                            (i === 0 ? 'bg-[#4F8CFF]' : 'bg-[#2C2F36]')
-                        }
-                    />
-                ))}
-            </div>
+        <div className="text-white flex flex-col items-center justify-center font-sans">
             {/* Lock icon */}
             <div className="mb-6">
                 <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
@@ -34,13 +20,7 @@ const Welcome: React.FC = () => {
             </p>
             {/* Buttons */}
             <div className="flex justify-center text-center">
-                <HoverBorderGradient
-                    containerClassName="rounded-lg"
-                    as="button"
-                    className="bg-black text-white flex items-center space-x-2"
-                >
-                    <span>Create a new wallet</span>
-                </HoverBorderGradient>
+                <Button variant="outline" className='mt-24' onClick={onNext}>Create a new wallet</Button>
             </div>
         </div>
     );
