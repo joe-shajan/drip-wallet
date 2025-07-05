@@ -25,6 +25,7 @@ import {
   DrawerClose,
 } from '@/components/ui/drawer';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 
 export function SelectNetwork({
   selectedNetwork,
@@ -76,6 +77,9 @@ export default function WalletsPage() {
   const [renaming, setRenaming] = useState(false);
   const [renameValue, setRenameValue] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
+  const [viewPK, setViewPK] = useState(false);
+  const [pkChecked, setPkChecked] = useState(false);
+  const [pkCopied, setPkCopied] = useState(false);
 
   useEffect(() => {
     if (!Object.keys(state.wallets).includes(selectedNetwork)) {
@@ -114,6 +118,21 @@ export default function WalletsPage() {
       setRenaming(false);
       setSettingsOpen(false);
       setSettingsWallet(null);
+    }
+  };
+
+  const getCurrentWallet = () => {
+    if (!settingsWallet) return null;
+    const list = state.wallets[selectedNetwork] || [];
+    return list.find(w => w.address === settingsWallet.address) || null;
+  };
+
+  const handleCopyPK = () => {
+    const w = getCurrentWallet();
+    if (w) {
+      navigator.clipboard.writeText(w.privateKey);
+      setPkCopied(true);
+      setTimeout(() => setPkCopied(false), 1500);
     }
   };
 
@@ -226,66 +245,130 @@ export default function WalletsPage() {
             </DrawerDescription>
           </DrawerHeader>
           <div className='flex flex-col gap-4 p-4'>
-            {renaming ? (
-              <div className='flex gap-2'>
-                <input
-                  ref={inputRef}
-                  className='border-border flex-1 rounded-md border bg-[#23262F] px-3 py-2 text-white focus:ring-2 focus:ring-[#4F8CFF] focus:outline-none'
-                  value={renameValue}
-                  onChange={e => setRenameValue(e.target.value)}
-                  placeholder='Enter new wallet name'
-                  onKeyDown={e => {
-                    if (e.key === 'Enter') handleRename();
-                    if (e.key === 'Escape') setRenaming(false);
+            {viewPK ? (
+              <>
+                <div className='flex flex-col items-center gap-2 text-center'>
+                  <svg width='32' height='32' viewBox='0 0 24 24' fill='none'>
+                    <path
+                      d='M12 5c5 0 9 4 9 7 0 3-4 7-9 7s-9-4-9-7c0-3 4-7 9-7Z'
+                      stroke='#FFFFFF'
+                      strokeWidth='1.5'
+                    />
+                    <circle
+                      cx='12'
+                      cy='12'
+                      r='3'
+                      stroke='#FFFFFF'
+                      strokeWidth='1.5'
+                    />
+                  </svg>
+                  <h3 className='text-lg font-semibold'>Your Private Key</h3>
+                  <p className='text-muted-foreground text-xs'>
+                    Never give out your private key to anyone.
+                  </p>
+                </div>
+                <div className='border-border rounded-md border bg-[#141619] p-3 text-xs break-all'>
+                  {getCurrentWallet()?.privateKey}
+                </div>
+                <div className='flex items-start gap-2'>
+                  <Checkbox
+                    id='pkconfirm'
+                    checked={pkChecked}
+                    onCheckedChange={v => setPkChecked(!!v)}
+                  />
+                  <label
+                    htmlFor='pkconfirm'
+                    className='text-muted-foreground text-xs leading-tight'
+                  >
+                    I understand that copying my secret may expose it to other
+                    apps and devices.
+                  </label>
+                </div>
+                <Button
+                  className='w-full'
+                  disabled={!pkChecked}
+                  onClick={handleCopyPK}
+                >
+                  {pkCopied ? 'Copied!' : 'Copy'}
+                </Button>
+                <Button
+                  variant='outline'
+                  className='w-full'
+                  onClick={() => {
+                    setViewPK(false);
+                    setPkChecked(false);
                   }}
-                  autoFocus
-                />
-                <Button
-                  size='sm'
-                  onClick={handleRename}
-                  disabled={!renameValue.trim()}
                 >
-                  Save
+                  Back
                 </Button>
-                <Button
-                  size='sm'
-                  variant='ghost'
-                  onClick={() => setRenaming(false)}
-                >
-                  Cancel
-                </Button>
-              </div>
+              </>
             ) : (
-              <Button
-                variant='ghost'
-                className='w-full bg-[#23262F] text-left hover:bg-[#2A2D36]'
-                onClick={() => {
-                  setRenaming(true);
-                  setRenameValue(settingsWallet?.name || '');
-                  setTimeout(() => inputRef.current?.focus(), 100);
-                }}
-              >
-                Rename
-              </Button>
+              <>
+                {renaming ? (
+                  <div className='flex gap-2'>
+                    <input
+                      ref={inputRef}
+                      className='border-border flex-1 rounded-md border bg-[#23262F] px-3 py-2 text-white focus:ring-2 focus:ring-[#4F8CFF] focus:outline-none'
+                      value={renameValue}
+                      onChange={e => setRenameValue(e.target.value)}
+                      placeholder='Enter new wallet name'
+                      onKeyDown={e => {
+                        if (e.key === 'Enter') handleRename();
+                        if (e.key === 'Escape') setRenaming(false);
+                      }}
+                      autoFocus
+                    />
+                    <Button
+                      size='sm'
+                      onClick={handleRename}
+                      disabled={!renameValue.trim()}
+                    >
+                      Save
+                    </Button>
+                    <Button
+                      size='sm'
+                      variant='ghost'
+                      onClick={() => setRenaming(false)}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    variant='ghost'
+                    className='w-full bg-[#23262F] text-left hover:bg-[#2A2D36]'
+                    onClick={() => {
+                      setRenaming(true);
+                      setRenameValue(settingsWallet?.name || '');
+                      setTimeout(() => inputRef.current?.focus(), 100);
+                    }}
+                  >
+                    Rename
+                  </Button>
+                )}
+                <Button
+                  variant='ghost'
+                  className='w-full bg-[#23262F] text-left hover:bg-[#2A2D36]'
+                  onClick={() => {
+                    setViewPK(true);
+                  }}
+                >
+                  Show Private Key
+                </Button>
+                <Button
+                  variant='destructive'
+                  className='w-full text-left'
+                  onClick={handleRemove}
+                >
+                  Remove Wallet
+                </Button>
+                <DrawerClose asChild>
+                  <Button variant='outline' className='mt-4 w-full'>
+                    Close
+                  </Button>
+                </DrawerClose>
+              </>
             )}
-            <Button
-              variant='ghost'
-              className='w-full bg-[#23262F] text-left hover:bg-[#2A2D36]'
-            >
-              Show Private Key
-            </Button>
-            <Button
-              variant='destructive'
-              className='w-full text-left'
-              onClick={handleRemove}
-            >
-              Remove Wallet
-            </Button>
-            <DrawerClose asChild>
-              <Button variant='outline' className='mt-4 w-full'>
-                Close
-              </Button>
-            </DrawerClose>
           </div>
         </DrawerContent>
       </Drawer>
