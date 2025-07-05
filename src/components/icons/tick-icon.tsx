@@ -1,5 +1,5 @@
-export const TickIcon = () => (
-  <svg width='48' height='48' viewBox='0 0 48 48' fill='none'>
+export const TickIcon = ({ ...props }: React.SVGProps<SVGSVGElement>) => (
+  <svg width='48' height='48' viewBox='0 0 48 48' fill='none' {...props}>
     <circle
       cx='24'
       cy='24'
