@@ -1,28 +1,31 @@
 'use client'
-import Welcome from '@/components/welcome';
-import NetworkSetup from '@/components/network-setup';
-import StepIndicator from '@/components/step-indicator';
-import React, { useState } from 'react';
+import React from 'react';
+import { Welcome, NetworkSetup, StepIndicator } from '@/components';
+import { useWallet } from '@/context/WalletContext';
+import ShowMnemonic from '@/components/show-mnemonic';
 
 const steps = [
   { component: Welcome },
   { component: NetworkSetup },
+  { component: ShowMnemonic },
 ];
 
 export default function OnboardingSteps() {
-  const [step, setStep] = useState(0);
+  const { state, dispatch } = useWallet();
   const totalSteps = steps.length;
 
   const goNext = () => {
-    if (step < totalSteps - 1) setStep(step + 1);
+    if (state.step < totalSteps - 1) {
+      dispatch({ type: 'SET_STEP', payload: state.step + 1 });
+    }
   };
 
-  const StepComponent = steps[step].component;
+  const StepComponent = steps[state.step].component;
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center">
       <div className="flex flex-col items-center">
-        <StepIndicator totalSteps={totalSteps} currentStep={step} />
+        <StepIndicator totalSteps={totalSteps} currentStep={state.step} />
         <StepComponent onNext={goNext} />
       </div>
     </div>

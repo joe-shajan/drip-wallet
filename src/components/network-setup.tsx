@@ -1,7 +1,8 @@
 'use client'
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from './ui/button';
 import { EthereumIcon, SolanaIcon } from './icons';
+import { useWallet } from '@/context/WalletContext';
 
 const networks = [
     {
@@ -17,14 +18,14 @@ const networks = [
 ];
 
 const NetworkSetup: React.FC<{ onNext?: () => void }> = ({ onNext }) => {
-    const [selectedNetworks, setSelectedNetworks] = useState<string[]>([]);
+    const { state, dispatch } = useWallet();
 
     const toggleNetwork = (key: string) => {
-        setSelectedNetworks((prev) =>
-            prev.includes(key)
-                ? prev.filter((k) => k !== key)
-                : [...prev, key]
-        );
+        dispatch({
+            type: 'SET_NETWORKS', payload: state.selectedNetworks.includes(key)
+                ? state.selectedNetworks.filter((k) => k !== key)
+                : [...state.selectedNetworks, key]
+        });
     };
 
     return (
@@ -33,7 +34,7 @@ const NetworkSetup: React.FC<{ onNext?: () => void }> = ({ onNext }) => {
             <p className="mb-6 text-[#B1B5C3] text-[15px] text-center max-w-xs">You can always add and remove later.</p>
             <div className="w-full max-w-xs flex flex-col gap-4 mb-8">
                 {networks.map((network) => {
-                    const selected = selectedNetworks.includes(network.key);
+                    const selected = state.selectedNetworks.includes(network.key);
                     return (
                         <div
                             key={network.key}
