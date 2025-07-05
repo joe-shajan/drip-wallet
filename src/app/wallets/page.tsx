@@ -16,6 +16,15 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useAddWallet } from '@/hooks/useAddWallet';
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerDescription,
+  DrawerClose,
+} from '@/components/ui/drawer';
+import { Button } from '@/components/ui/button';
 
 export function SelectNetwork({
   selectedNetwork,
@@ -58,6 +67,12 @@ export default function WalletsPage() {
   const [selectedNetwork, setSelectedNetwork] = useState(networkKeys[0]);
   const wallets = state.wallets[selectedNetwork] || [];
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [settingsWallet, setSettingsWallet] = useState<{
+    address: string;
+    idx: number;
+    name: string;
+  } | null>(null);
 
   const handleCopy = (address: string, idx: number) => {
     navigator.clipboard.writeText(address);
@@ -66,8 +81,8 @@ export default function WalletsPage() {
   };
 
   return (
-    <div className='flex min-h-screen items-center justify-center'>
-      <div className='w-[350px] rounded-xl bg-[#181A20] p-4 text-white shadow-lg'>
+    <div className='bg-background flex min-h-screen items-center justify-center'>
+      <div className='w-md rounded-xl bg-[#181A20] p-6 shadow-xl'>
         <div className='relative mb-6 flex items-center justify-center'>
           <span className='text-lg font-semibold'>Wallets</span>
         </div>
@@ -79,56 +94,65 @@ export default function WalletsPage() {
         </div>
 
         {/* Wallet cards */}
-        <div className='space-y-2'>
-          {wallets.map((wallet, idx) => {
-            return (
-              <div
-                key={wallet.address}
-                className={`flex items-center justify-between rounded-lg border border-[#23262F] bg-[#23262F] px-3 py-3 transition-all hover:border-[#4F8CFF] hover:bg-[#232B3A]`}
-              >
-                <div className='flex items-center gap-3'>
-                  {NetworkIcons[selectedNetwork as keyof typeof NetworkIcons]}
-                  <div>
-                    <div className='font-medium'>Wallet {idx + 1}</div>
-                    <div
-                      className='flex cursor-pointer items-center gap-1 text-xs text-[#A3AED0]'
-                      onClick={e => {
-                        e.stopPropagation();
-                        handleCopy(wallet.address, idx);
-                      }}
+        <div className='mt-6 space-y-4'>
+          {wallets.map((wallet, idx) => (
+            <div
+              key={wallet.address}
+              className={`flex items-center justify-between rounded-lg border border-[#23262F] bg-[#23262F] px-3 py-3 transition-all hover:border-[#4F8CFF] hover:bg-[#232B3A]`}
+            >
+              <div className='flex items-center gap-3'>
+                {NetworkIcons[selectedNetwork as keyof typeof NetworkIcons]}
+                <div>
+                  <div className='font-medium'>Wallet {idx + 1}</div>
+                  <div
+                    className='flex cursor-pointer items-center gap-1 text-xs text-[#A3AED0]'
+                    onClick={e => {
+                      e.stopPropagation();
+                      handleCopy(wallet.address, idx);
+                    }}
+                  >
+                    <span>
+                      {wallet.address.slice(0, 6)}...
+                      {wallet.address.slice(-6)}
+                    </span>
+                    <button
+                      className='ml-1 text-[#4F8CFF] hover:underline'
+                      tabIndex={0}
                     >
-                      <span>
-                        {wallet.address.slice(0, 4)}...
-                        {wallet.address.slice(-4)}
-                      </span>
-                      <button
-                        className='ml-1 text-[#4F8CFF] hover:underline'
-                        tabIndex={0}
-                      >
-                        {copiedIdx === idx ? (
-                          <TickIcon className='h-3.5 w-3.5 text-[#4F8CFF]' />
-                        ) : (
-                          <CopyToClipboardIcon className='h-3.5 w-3.5 text-[#4F8CFF]' />
-                        )}
-                      </button>
-                    </div>
+                      {copiedIdx === idx ? (
+                        <TickIcon className='h-3.5 w-3.5 text-[#4F8CFF]' />
+                      ) : (
+                        <CopyToClipboardIcon className='h-3.5 w-3.5 text-[#4F8CFF]' />
+                      )}
+                    </button>
                   </div>
-                </div>
-                <div className='flex items-center gap-2'>
-                  <div className='text-sm font-semibold text-[#A3AED0]'>
-                    $0.00
-                  </div>
-                  <button className='ml-2 cursor-pointer rounded p-1 text-[#A3AED0] hover:text-white focus:outline-none'>
-                    <svg width='18' height='18' fill='none' viewBox='0 0 18 18'>
-                      <circle cx='9' cy='9' r='1' fill='currentColor' />
-                      <circle cx='9' cy='4.5' r='1' fill='currentColor' />
-                      <circle cx='9' cy='13.5' r='1' fill='currentColor' />
-                    </svg>
-                  </button>
                 </div>
               </div>
-            );
-          })}
+              <div className='flex items-center gap-2'>
+                <div className='text-sm font-semibold text-[#A3AED0]'>
+                  $0.00
+                </div>
+                <button
+                  onClick={() => {
+                    setSettingsWallet({
+                      address: wallet.address,
+                      idx,
+                      name: wallet.name,
+                    });
+                    setSettingsOpen(true);
+                  }}
+                  className='ml-auto rounded-full p-2 hover:bg-[#23262F]'
+                  aria-label='Wallet settings'
+                >
+                  <svg width='18' height='18' fill='none' viewBox='0 0 18 18'>
+                    <circle cx='9' cy='3.5' r='1.5' fill='#A3AED0' />
+                    <circle cx='9' cy='9' r='1.5' fill='#A3AED0' />
+                    <circle cx='9' cy='14.5' r='1.5' fill='#A3AED0' />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
         {/* Add new wallet link */}
         <button
@@ -140,6 +164,42 @@ export default function WalletsPage() {
           + Add new<span className='capitalize'>{selectedNetwork}</span> wallet
         </button>
       </div>
+      <Drawer open={settingsOpen} onOpenChange={setSettingsOpen}>
+        <DrawerContent className='mx-auto max-w-md'>
+          <DrawerHeader>
+            <DrawerTitle>{settingsWallet?.name} Settings</DrawerTitle>
+            <DrawerDescription>
+              {settingsWallet?.address && (
+                <span className='text-muted-foreground text-xs break-all'>
+                  {settingsWallet.address}
+                </span>
+              )}
+            </DrawerDescription>
+          </DrawerHeader>
+          <div className='flex flex-col gap-4 p-4'>
+            <Button
+              variant='ghost'
+              className='w-full bg-[#23262F] text-left hover:bg-[#2A2D36]'
+            >
+              Rename
+            </Button>
+            <Button
+              variant='ghost'
+              className='w-full bg-[#23262F] text-left hover:bg-[#2A2D36]'
+            >
+              Show Private Key
+            </Button>
+            <Button variant='destructive' className='w-full text-left'>
+              Remove Wallet
+            </Button>
+            <DrawerClose asChild>
+              <Button variant='outline' className='mt-4 w-full'>
+                Close
+              </Button>
+            </DrawerClose>
+          </div>
+        </DrawerContent>
+      </Drawer>
     </div>
   );
 }
