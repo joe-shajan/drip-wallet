@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import React from 'react';
 import { Welcome, NetworkSetup, StepIndicator } from '@/components';
 import { useWallet } from '@/context/WalletContext';
@@ -23,8 +23,8 @@ export default function OnboardingSteps() {
   const StepComponent = steps[state.step].component;
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center">
-      <div className="flex flex-col items-center">
+    <div className='flex min-h-screen flex-col items-center justify-center'>
+      <div className='flex flex-col items-center'>
         <StepIndicator totalSteps={totalSteps} currentStep={state.step} />
         <StepComponent onNext={goNext} />
       </div>
