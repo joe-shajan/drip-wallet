@@ -1,13 +1,19 @@
 'use client';
 import React from 'react';
-import { Welcome, NetworkSetup, StepIndicator } from '@/components';
+import {
+  Welcome,
+  NetworkSetup,
+  StepIndicator,
+  ShowMnemonic,
+  GeneratingWallets,
+} from '@/components';
 import { useWallet } from '@/context/WalletContext';
-import ShowMnemonic from '@/components/show-mnemonic';
 
 const steps = [
   { component: Welcome },
   { component: NetworkSetup },
   { component: ShowMnemonic },
+  { component: GeneratingWallets },
 ];
 
 export default function OnboardingSteps() {

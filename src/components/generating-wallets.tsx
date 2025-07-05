@@ -10,8 +10,6 @@ export default function GeneratingWallets({ onNext }: { onNext: () => void }) {
     (async () => {
       for (const network of state.selectedNetworks) {
         const wallet = await generateWalletForNetwork(network, state.seed);
-        console.log(wallet);
-
         dispatch({ type: 'ADD_WALLET', payload: { network, wallet } });
       }
 
@@ -20,8 +18,8 @@ export default function GeneratingWallets({ onNext }: { onNext: () => void }) {
   }, [state.selectedNetworks, state.seed, dispatch, onNext]);
 
   return (
-    <div className='flex min-h-screen flex-col items-center justify-center'>
-      <div className='mb-6 h-16 w-16 animate-spin rounded-full border-b-2 border-[#4F8CFF]'></div>
+    <div className='mt-10 flex flex-col items-center justify-center'>
+      <div className='mb-10 h-16 w-16 animate-spin rounded-full border-b-2 border-[#4F8CFF]'></div>
       <h2 className='mb-2 text-[22px] font-semibold'>Generating wallets...</h2>
       <p className='max-w-xs text-center text-[15px] text-[#B1B5C3]'>
         Please wait while we generate your wallets.
