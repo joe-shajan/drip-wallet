@@ -26,6 +26,8 @@ import {
 } from '@/components/ui/drawer';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { useRouter } from 'next/navigation';
+import { Input } from '@/components/ui/input';
 
 export function SelectNetwork({
   selectedNetwork,
@@ -63,6 +65,7 @@ export function SelectNetwork({
 export default function WalletsPage() {
   const { state, dispatch } = useWallet();
   const addWallet = useAddWallet();
+  const router = useRouter();
 
   const networkKeys = Object.keys(state.wallets);
   const [selectedNetwork, setSelectedNetwork] = useState(networkKeys[0]);
@@ -135,6 +138,23 @@ export default function WalletsPage() {
       setTimeout(() => setPkCopied(false), 1500);
     }
   };
+
+  const hasWallets = networkKeys.length > 0;
+
+  if (!hasWallets) {
+    return (
+      <div className='bg-background flex min-h-screen items-center justify-center'>
+        <div className='flex w-[320px] flex-col items-center gap-4 rounded-xl bg-[#181A20] p-8 text-center shadow-xl'>
+          <h2 className='text-lg font-semibold text-white'>No wallets found</h2>
+          <p className='text-muted-foreground text-sm'>
+            You don't have any wallets yet. Start the onboarding process to
+            create one.
+          </p>
+          <Button onClick={() => router.push('/')}>Start Onboarding</Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className='bg-background flex min-h-screen items-center justify-center'>
@@ -306,9 +326,9 @@ export default function WalletsPage() {
               <>
                 {renaming ? (
                   <div className='flex gap-2'>
-                    <input
+                    <Input
                       ref={inputRef}
-                      className='border-border flex-1 rounded-md border bg-[#23262F] px-3 py-2 text-white focus:ring-2 focus:ring-[#4F8CFF] focus:outline-none'
+                      className='h-9 flex-1 bg-[#23262F]'
                       value={renameValue}
                       onChange={e => setRenameValue(e.target.value)}
                       placeholder='Enter new wallet name'
@@ -316,20 +336,14 @@ export default function WalletsPage() {
                         if (e.key === 'Enter') handleRename();
                         if (e.key === 'Escape') setRenaming(false);
                       }}
-                      autoFocus
                     />
                     <Button
-                      size='sm'
                       onClick={handleRename}
                       disabled={!renameValue.trim()}
                     >
                       Save
                     </Button>
-                    <Button
-                      size='sm'
-                      variant='ghost'
-                      onClick={() => setRenaming(false)}
-                    >
+                    <Button variant='ghost' onClick={() => setRenaming(false)}>
                       Cancel
                     </Button>
                   </div>
