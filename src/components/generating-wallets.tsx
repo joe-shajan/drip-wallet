@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
-
+import { useRouter } from 'next/navigation';
 import { useWallet } from '@/context/WalletContext';
 import { generateWalletForNetwork } from '@/lib/generateWallets';
 import { TickIcon } from './icons';
 
-export default function GeneratingWallets({ onNext }: { onNext: () => void }) {
+export default function GeneratingWallets() {
   const { state, dispatch } = useWallet();
   const [isSuccess, setIsSuccess] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     (async () => {
@@ -17,7 +18,7 @@ export default function GeneratingWallets({ onNext }: { onNext: () => void }) {
       setTimeout(() => {
         setIsSuccess(true);
         setTimeout(() => {
-          onNext();
+          router.push('/wallets');
         }, 1000);
       }, 2000);
     })();

@@ -4,11 +4,11 @@ export interface WalletState {
   mnemonic: string;
   seed: Buffer<ArrayBufferLike>;
   wallets: {
-    [network: string]: {
+    [network: string]: Array<{
       address: string;
       name: string;
       privateKey: string;
-    };
+    }>;
   };
 }
 
@@ -56,7 +56,10 @@ export const walletReducer = (
         ...state,
         wallets: {
           ...state.wallets,
-          [action.payload.network]: action.payload.wallet,
+          [action.payload.network]: [
+            ...(state.wallets[action.payload.network] || []),
+            action.payload.wallet,
+          ],
         },
       };
 
