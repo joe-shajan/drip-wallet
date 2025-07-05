@@ -62,7 +62,12 @@ const NetworkSetup: React.FC<{ onNext?: () => void }> = ({ onNext }) => {
           );
         })}
       </div>
-      <Button variant='outline' className='mt-8 w-full' onClick={onNext}>
+      <Button
+        disabled={state.selectedNetworks.length === 0}
+        variant='outline'
+        className='mt-8 w-full'
+        onClick={onNext}
+      >
         Set up wallets
       </Button>
     </div>

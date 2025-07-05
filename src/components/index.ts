@@ -4,4 +4,10 @@ import StepIndicator from './step-indicator';
 import ShowMnemonic from './show-mnemonic';
 import GeneratingWallets from './generating-wallets';
 
-export { Welcome, NetworkSetup, StepIndicator, ShowMnemonic, GeneratingWallets };
+export {
+  Welcome,
+  NetworkSetup,
+  StepIndicator,
+  ShowMnemonic,
+  GeneratingWallets,
+};
