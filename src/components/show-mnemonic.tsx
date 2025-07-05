@@ -3,10 +3,13 @@ import { useEffect, useState } from 'react';
 import { useWallet } from '@/context/WalletContext';
 import { generateMnemonic, mnemonicToSeed } from 'bip39'; // or your lib
 import { Button } from './ui/button';
+import { Checkbox } from './ui/checkbox';
 
 export default function ShowMnemonic({ onNext }: { onNext: () => void }) {
     const { state, dispatch } = useWallet();
     const [isCopied, setIsCopied] = useState(false);
+    const [isSaved, setIsSaved] = useState(false);
+
     useEffect(() => {
         if (!state.mnemonic) {
             (async () => {
@@ -43,15 +46,18 @@ export default function ShowMnemonic({ onNext }: { onNext: () => void }) {
                         </div>
                     ))}
                 </div>
-                <div className="text-xs text-[#B1B5C3] mt-4 w-full text-center opacity-80">
+                <div
+                    className={`text-xs text-[#B1B5C3] mt-4 w-full text-center transition-opacity duration-300 ease-in-out
+                        ${isCopied ? 'opacity-100' : 'opacity-80'}`}
+                >
                     {isCopied ? 'Copied to clipboard' : 'Click anywhere on this card to copy'}
                 </div>
             </div>
             <div className="flex items-center gap-2 mb-4 mt-2">
-                <input type="checkbox" id="mnemonic-saved" className="accent-[#4F8CFF] w-4 h-4" />
+                <Checkbox id="mnemonic-saved" className="accent-[#4F8CFF] w-4 h-4" checked={isSaved} onCheckedChange={() => setIsSaved(!isSaved)} />
                 <label htmlFor="mnemonic-saved" className="text-[#B1B5C3] text-sm select-none">I saved my secret recovery phrase</label>
             </div>
-            <Button variant="outline" className='mt-2 w-full max-w-md' onClick={onNext}>Next</Button>
+            <Button disabled={!isSaved} variant="outline" className='mt-2 w-full max-w-md' onClick={onNext}>Next</Button>
         </div>
     );
 }
