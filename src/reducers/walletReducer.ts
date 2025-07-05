@@ -24,6 +24,14 @@ export type WalletAction =
         wallet: { address: string; name: string; privateKey: string };
       };
     }
+  | {
+      type: 'REMOVE_WALLET';
+      payload: { network: string; address: string };
+    }
+  | {
+      type: 'RENAME_WALLET';
+      payload: { network: string; address: string; name: string };
+    }
   | { type: 'RESET' };
 
 export const initialState: WalletState = {
@@ -62,6 +70,39 @@ export const walletReducer = (
           ],
         },
       };
+
+    case 'REMOVE_WALLET': {
+      const { network, address } = action.payload;
+      const updatedList = (state.wallets[network] || []).filter(
+        w => w.address !== address
+      );
+
+      // Clone wallets map so we can mutate safely
+      const newWallets = { ...state.wallets };
+      if (updatedList.length) {
+        newWallets[network] = updatedList;
+      } else {
+        delete newWallets[network];
+      }
+
+      return {
+        ...state,
+        wallets: newWallets,
+      };
+    }
+
+    case 'RENAME_WALLET': {
+      const { network, address, name } = action.payload;
+      return {
+        ...state,
+        wallets: {
+          ...state.wallets,
+          [network]: (state.wallets[network] || []).map(w =>
+            w.address === address ? { ...w, name } : w
+          ),
+        },
+      };
+    }
 
     case 'RESET':
       return initialState;

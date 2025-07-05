@@ -6,7 +6,7 @@ import {
   NetworkIcons,
   TickIcon,
 } from '@/components/icons';
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Select,
   SelectContent,
@@ -60,7 +60,7 @@ export function SelectNetwork({
 }
 
 export default function WalletsPage() {
-  const { state } = useWallet();
+  const { state, dispatch } = useWallet();
   const addWallet = useAddWallet();
 
   const networkKeys = Object.keys(state.wallets);
@@ -73,11 +73,48 @@ export default function WalletsPage() {
     idx: number;
     name: string;
   } | null>(null);
+  const [renaming, setRenaming] = useState(false);
+  const [renameValue, setRenameValue] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!Object.keys(state.wallets).includes(selectedNetwork)) {
+      const first = Object.keys(state.wallets)[0] || '';
+      setSelectedNetwork(first);
+    }
+  }, [state.wallets, selectedNetwork]);
 
   const handleCopy = (address: string, idx: number) => {
     navigator.clipboard.writeText(address);
     setCopiedIdx(idx);
     setTimeout(() => setCopiedIdx(null), 1500);
+  };
+
+  const handleRemove = () => {
+    if (settingsWallet) {
+      dispatch({
+        type: 'REMOVE_WALLET',
+        payload: { network: selectedNetwork, address: settingsWallet.address },
+      });
+      setSettingsOpen(false);
+      setSettingsWallet(null);
+    }
+  };
+
+  const handleRename = () => {
+    if (settingsWallet && renameValue.trim()) {
+      dispatch({
+        type: 'RENAME_WALLET',
+        payload: {
+          network: selectedNetwork,
+          address: settingsWallet.address,
+          name: renameValue.trim(),
+        },
+      });
+      setRenaming(false);
+      setSettingsOpen(false);
+      setSettingsWallet(null);
+    }
   };
 
   return (
@@ -103,7 +140,9 @@ export default function WalletsPage() {
               <div className='flex items-center gap-3'>
                 {NetworkIcons[selectedNetwork as keyof typeof NetworkIcons]}
                 <div>
-                  <div className='font-medium'>Wallet {idx + 1}</div>
+                  <div className='font-medium'>
+                    {wallet.name || `Wallet ${idx + 1}`}
+                  </div>
                   <div
                     className='flex cursor-pointer items-center gap-1 text-xs text-[#A3AED0]'
                     onClick={e => {
@@ -164,7 +203,17 @@ export default function WalletsPage() {
           + Add new<span className='capitalize'>{selectedNetwork}</span> wallet
         </button>
       </div>
-      <Drawer open={settingsOpen} onOpenChange={setSettingsOpen}>
+      <Drawer
+        open={settingsOpen}
+        onOpenChange={open => {
+          setSettingsOpen(open);
+          if (!open) {
+            setRenaming(false);
+            setRenameValue('');
+            setSettingsWallet(null);
+          }
+        }}
+      >
         <DrawerContent className='mx-auto max-w-md'>
           <DrawerHeader>
             <DrawerTitle>{settingsWallet?.name} Settings</DrawerTitle>
@@ -177,19 +226,59 @@ export default function WalletsPage() {
             </DrawerDescription>
           </DrawerHeader>
           <div className='flex flex-col gap-4 p-4'>
-            <Button
-              variant='ghost'
-              className='w-full bg-[#23262F] text-left hover:bg-[#2A2D36]'
-            >
-              Rename
-            </Button>
+            {renaming ? (
+              <div className='flex gap-2'>
+                <input
+                  ref={inputRef}
+                  className='border-border flex-1 rounded-md border bg-[#23262F] px-3 py-2 text-white focus:ring-2 focus:ring-[#4F8CFF] focus:outline-none'
+                  value={renameValue}
+                  onChange={e => setRenameValue(e.target.value)}
+                  placeholder='Enter new wallet name'
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') handleRename();
+                    if (e.key === 'Escape') setRenaming(false);
+                  }}
+                  autoFocus
+                />
+                <Button
+                  size='sm'
+                  onClick={handleRename}
+                  disabled={!renameValue.trim()}
+                >
+                  Save
+                </Button>
+                <Button
+                  size='sm'
+                  variant='ghost'
+                  onClick={() => setRenaming(false)}
+                >
+                  Cancel
+                </Button>
+              </div>
+            ) : (
+              <Button
+                variant='ghost'
+                className='w-full bg-[#23262F] text-left hover:bg-[#2A2D36]'
+                onClick={() => {
+                  setRenaming(true);
+                  setRenameValue(settingsWallet?.name || '');
+                  setTimeout(() => inputRef.current?.focus(), 100);
+                }}
+              >
+                Rename
+              </Button>
+            )}
             <Button
               variant='ghost'
               className='w-full bg-[#23262F] text-left hover:bg-[#2A2D36]'
             >
               Show Private Key
             </Button>
-            <Button variant='destructive' className='w-full text-left'>
+            <Button
+              variant='destructive'
+              className='w-full text-left'
+              onClick={handleRemove}
+            >
               Remove Wallet
             </Button>
             <DrawerClose asChild>
