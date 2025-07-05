@@ -3,9 +3,11 @@ import { useRouter } from 'next/navigation';
 import { useWallet } from '@/context/WalletContext';
 import { generateWalletForNetwork } from '@/lib/generateWallets';
 import { TickIcon } from './icons';
+import { useAddWallet } from '@/hooks/useAddWallet';
 
 export default function GeneratingWallets() {
   const { state, dispatch } = useWallet();
+  const addWallet = useAddWallet();
   const [isSuccess, setIsSuccess] = useState(false);
   const router = useRouter();
   const hasRun = useRef(false);
@@ -15,8 +17,7 @@ export default function GeneratingWallets() {
     hasRun.current = true;
     (async () => {
       for (const network of state.selectedNetworks) {
-        const wallet = await generateWalletForNetwork(network, state.seed);
-        dispatch({ type: 'ADD_WALLET', payload: { network, wallet } });
+        addWallet(network);
       }
       setTimeout(() => {
         setIsSuccess(true);

@@ -3,44 +3,49 @@ import { derivePath } from 'ed25519-hd-key';
 import { Keypair } from '@solana/web3.js';
 import { HDNodeWallet, Wallet } from 'ethers';
 
-const derivationPath = {
-  solana: `m/44'/501'/0'/0'`,
-  ethereum: `m/44'/60'/0'/0/0`,
-};
+const getSolanaDerivationPath = (idx: number) => `m/44'/501'/${idx}'/0'`;
+const getEthereumDerivationPath = (idx: number) => `m/44'/60'/${idx}'/0'`;
 
-const generateSolanaWallet = async (seed: Buffer<ArrayBufferLike>) => {
+const generateSolanaWallet = async (
+  seed: Buffer<ArrayBufferLike>,
+  idx: number
+) => {
   const derivedSeed = derivePath(
-    derivationPath.solana,
+    getSolanaDerivationPath(idx),
     seed.toString('hex')
   ).key;
   const secret = nacl.sign.keyPair.fromSeed(derivedSeed).secretKey;
   return {
     address: Keypair.fromSecretKey(new Uint8Array(secret)).publicKey.toBase58(),
-    name: 'Wallet 1',
+    name: `Wallet ${idx + 1}`,
     privateKey: Buffer.from(secret).toString('hex'),
   };
 };
 
-const generateEthereumWallet = async (seed: Buffer<ArrayBufferLike>) => {
+const generateEthereumWallet = async (
+  seed: Buffer<ArrayBufferLike>,
+  idx: number
+) => {
   const hdNode = HDNodeWallet.fromSeed(seed);
-  const child = hdNode.derivePath(derivationPath.ethereum);
+  const child = hdNode.derivePath(getEthereumDerivationPath(idx));
   const wallet = new Wallet(child.privateKey);
   return {
     address: wallet.address,
-    name: 'Wallet 1',
+    name: `Wallet ${idx + 1}`,
     privateKey: wallet.privateKey.toString(),
   };
 };
 
 export const generateWalletForNetwork = async (
   network: string,
-  seed: Buffer<ArrayBufferLike>
+  seed: Buffer<ArrayBufferLike>,
+  idx: number
 ) => {
   switch (network) {
     case 'solana':
-      return await generateSolanaWallet(seed);
+      return await generateSolanaWallet(seed, idx);
     case 'ethereum':
-      return await generateEthereumWallet(seed);
+      return await generateEthereumWallet(seed, idx);
     default:
       throw new Error(`Unsupported network: ${network}`);
   }

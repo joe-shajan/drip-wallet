@@ -15,6 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { useAddWallet } from '@/hooks/useAddWallet';
 
 export function SelectNetwork({
   selectedNetwork,
@@ -51,6 +52,8 @@ export function SelectNetwork({
 
 export default function WalletsPage() {
   const { state } = useWallet();
+  const addWallet = useAddWallet();
+
   const networkKeys = Object.keys(state.wallets);
   const [selectedNetwork, setSelectedNetwork] = useState(networkKeys[0]);
   const wallets = state.wallets[selectedNetwork] || [];
@@ -130,7 +133,9 @@ export default function WalletsPage() {
         {/* Add new wallet link */}
         <button
           className='mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-transparent px-2 py-2 text-sm font-medium text-[#4F8CFF] hover:bg-[#23262F]'
-          // onClick={...} // Add wallet logic here
+          onClick={() => {
+            addWallet(selectedNetwork);
+          }}
         >
           + Add new<span className='capitalize'>{selectedNetwork}</span> wallet
         </button>
