@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useWallet } from '@/context/WalletContext';
 import { generateWalletForNetwork } from '@/lib/generateWallets';
@@ -8,8 +8,11 @@ export default function GeneratingWallets() {
   const { state, dispatch } = useWallet();
   const [isSuccess, setIsSuccess] = useState(false);
   const router = useRouter();
+  const hasRun = useRef(false);
 
   useEffect(() => {
+    if (hasRun.current) return;
+    hasRun.current = true;
     (async () => {
       for (const network of state.selectedNetworks) {
         const wallet = await generateWalletForNetwork(network, state.seed);
