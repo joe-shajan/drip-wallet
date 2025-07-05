@@ -29,7 +29,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 
-export function SelectNetwork({
+function SelectNetwork({
   selectedNetwork,
   setSelectedNetwork,
 }: {
@@ -147,7 +147,7 @@ export default function WalletsPage() {
         <div className='flex w-[320px] flex-col items-center gap-4 rounded-xl bg-[#181A20] p-8 text-center shadow-xl'>
           <h2 className='text-lg font-semibold text-white'>No wallets found</h2>
           <p className='text-muted-foreground text-sm'>
-            You don't have any wallets yet. Start the onboarding process to
+            You don&apos;t have any wallets yet. Start the onboarding process to
             create one.
           </p>
           <Button onClick={() => router.push('/')}>Start Onboarding</Button>

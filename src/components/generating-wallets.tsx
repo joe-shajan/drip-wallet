@@ -1,12 +1,11 @@
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useWallet } from '@/context/WalletContext';
-import { generateWalletForNetwork } from '@/lib/generateWallets';
 import { TickIcon } from './icons';
 import { useAddWallet } from '@/hooks/useAddWallet';
 
 export default function GeneratingWallets() {
-  const { state, dispatch } = useWallet();
+  const { state } = useWallet();
   const addWallet = useAddWallet();
   const [isSuccess, setIsSuccess] = useState(false);
   const router = useRouter();
