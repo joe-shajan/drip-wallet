@@ -6,12 +6,8 @@ import React, {
   Dispatch,
   ReactNode,
 } from 'react';
-import {
-  walletReducer,
-  initialState,
-  WalletState,
-  WalletAction,
-} from '@/reducers/walletReducer';
+import { walletReducer, initialState } from '@/reducers/walletReducer';
+import { WalletAction, WalletState } from '@/types/wallet';
 
 interface WalletContextType {
   state: WalletState;

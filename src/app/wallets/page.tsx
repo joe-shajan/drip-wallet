@@ -28,6 +28,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
+import { Wallet } from '@/types/wallet';
 
 function SelectNetwork({
   selectedNetwork,
@@ -62,6 +63,85 @@ function SelectNetwork({
   );
 }
 
+type WalletCardProps = {
+  wallets: Wallet[];
+  selectedNetwork: string;
+  handleCopy: (address: string, idx: number) => void;
+  copiedIdx: number | null;
+  setSettingsWallet: (wallet: any) => void;
+  setSettingsOpen: any;
+};
+
+const WalletCard = ({
+  wallets,
+  selectedNetwork,
+  handleCopy,
+  copiedIdx,
+  setSettingsWallet,
+  setSettingsOpen,
+}: WalletCardProps) => (
+  <div className='mt-6 space-y-4'>
+    {wallets.map((wallet, idx) => (
+      <div
+        key={wallet.address}
+        className={`flex items-center justify-between rounded-lg border border-[#23262F] bg-[#23262F] px-3 py-3 transition-all hover:border-[#4F8CFF] hover:bg-[#232B3A]`}
+      >
+        <div className='flex items-center gap-3'>
+          {NetworkIcons[selectedNetwork as keyof typeof NetworkIcons]}
+          <div>
+            <div className='font-medium'>
+              {wallet.name || `Wallet ${idx + 1}`}
+            </div>
+            <div
+              className='flex cursor-pointer items-center gap-1 text-xs text-[#A3AED0]'
+              onClick={e => {
+                e.stopPropagation();
+                handleCopy(wallet.address, idx);
+              }}
+            >
+              <span>
+                {wallet.address.slice(0, 6)}...
+                {wallet.address.slice(-6)}
+              </span>
+              <button
+                className='ml-1 text-[#4F8CFF] hover:underline'
+                tabIndex={0}
+              >
+                {copiedIdx === idx ? (
+                  <TickIcon className='h-3.5 w-3.5 text-[#4F8CFF]' />
+                ) : (
+                  <CopyToClipboardIcon className='h-3.5 w-3.5 text-[#4F8CFF]' />
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+        <div className='flex items-center gap-2'>
+          <div className='text-sm font-semibold text-[#A3AED0]'>$0.00</div>
+          <button
+            onClick={() => {
+              setSettingsWallet({
+                address: wallet.address,
+                idx,
+                name: wallet.name,
+              });
+              setSettingsOpen(true);
+            }}
+            className='ml-auto rounded-full p-2 hover:bg-[#23262F]'
+            aria-label='Wallet settings'
+          >
+            <svg width='18' height='18' fill='none' viewBox='0 0 18 18'>
+              <circle cx='9' cy='3.5' r='1.5' fill='#A3AED0' />
+              <circle cx='9' cy='9' r='1.5' fill='#A3AED0' />
+              <circle cx='9' cy='14.5' r='1.5' fill='#A3AED0' />
+            </svg>
+          </button>
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
 export default function WalletsPage() {
   const { state, dispatch } = useWallet();
   const addWallet = useAddWallet();
@@ -69,14 +149,10 @@ export default function WalletsPage() {
 
   const networkKeys = Object.keys(state.wallets);
   const [selectedNetwork, setSelectedNetwork] = useState(networkKeys[0]);
-  const wallets = state.wallets[selectedNetwork] || [];
+  const wallets: Wallet[] = state.wallets[selectedNetwork] || [];
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [settingsWallet, setSettingsWallet] = useState<{
-    address: string;
-    idx: number;
-    name: string;
-  } | null>(null);
+  const [settingsWallet, setSettingsWallet] = useState<Wallet | null>(null);
   const [renaming, setRenaming] = useState(false);
   const [renameValue, setRenameValue] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -169,69 +245,14 @@ export default function WalletsPage() {
           />
         </div>
 
-        {/* Wallet cards */}
-        <div className='mt-6 space-y-4'>
-          {wallets.map((wallet, idx) => (
-            <div
-              key={wallet.address}
-              className={`flex items-center justify-between rounded-lg border border-[#23262F] bg-[#23262F] px-3 py-3 transition-all hover:border-[#4F8CFF] hover:bg-[#232B3A]`}
-            >
-              <div className='flex items-center gap-3'>
-                {NetworkIcons[selectedNetwork as keyof typeof NetworkIcons]}
-                <div>
-                  <div className='font-medium'>
-                    {wallet.name || `Wallet ${idx + 1}`}
-                  </div>
-                  <div
-                    className='flex cursor-pointer items-center gap-1 text-xs text-[#A3AED0]'
-                    onClick={e => {
-                      e.stopPropagation();
-                      handleCopy(wallet.address, idx);
-                    }}
-                  >
-                    <span>
-                      {wallet.address.slice(0, 6)}...
-                      {wallet.address.slice(-6)}
-                    </span>
-                    <button
-                      className='ml-1 text-[#4F8CFF] hover:underline'
-                      tabIndex={0}
-                    >
-                      {copiedIdx === idx ? (
-                        <TickIcon className='h-3.5 w-3.5 text-[#4F8CFF]' />
-                      ) : (
-                        <CopyToClipboardIcon className='h-3.5 w-3.5 text-[#4F8CFF]' />
-                      )}
-                    </button>
-                  </div>
-                </div>
-              </div>
-              <div className='flex items-center gap-2'>
-                <div className='text-sm font-semibold text-[#A3AED0]'>
-                  $0.00
-                </div>
-                <button
-                  onClick={() => {
-                    setSettingsWallet({
-                      address: wallet.address,
-                      idx,
-                      name: wallet.name,
-                    });
-                    setSettingsOpen(true);
-                  }}
-                  className='ml-auto rounded-full p-2 hover:bg-[#23262F]'
-                  aria-label='Wallet settings'
-                >
-                  <svg width='18' height='18' fill='none' viewBox='0 0 18 18'>
-                    <circle cx='9' cy='3.5' r='1.5' fill='#A3AED0' />
-                    <circle cx='9' cy='9' r='1.5' fill='#A3AED0' />
-                    <circle cx='9' cy='14.5' r='1.5' fill='#A3AED0' />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
+        <WalletCard
+          wallets={wallets}
+          copiedIdx={copiedIdx}
+          handleCopy={handleCopy}
+          selectedNetwork={selectedNetwork}
+          setSettingsOpen={setSettingsOpen}
+          setSettingsWallet={setSettingsWallet}
+        />
         {/* Add new wallet link */}
         <button
           className='mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-transparent px-2 py-2 text-sm font-medium text-[#4F8CFF] hover:bg-[#23262F]'

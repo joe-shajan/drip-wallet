@@ -14,6 +14,7 @@ const generateSolanaWallet = async (
     getSolanaDerivationPath(idx),
     seed.toString('hex')
   ).key;
+  
   const secret = nacl.sign.keyPair.fromSeed(derivedSeed).secretKey;
   return {
     address: Keypair.fromSecretKey(new Uint8Array(secret)).publicKey.toBase58(),
