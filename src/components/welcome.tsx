@@ -13,9 +13,7 @@ const Welcome: React.FC<{ onNext?: () => void }> = ({ onNext }) => {
         </svg>
       </div>
       {/* Title */}
-      <h2 className='m-0 text-[22px] font-semibold'>
-        Welcome to Web based wallet
-      </h2>
+      <h2 className='m-0 text-[22px] font-semibold'>Welcome to Drip wallet</h2>
       {/* Subtitle */}
       <p className='mt-3 mb-8 max-w-xs text-center text-[15px] text-[#B1B5C3]'>
         You&apos;ll use this wallet to send and receive crypto and NFTs

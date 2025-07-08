@@ -30,6 +30,10 @@ import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Wallet } from '@/types/wallet';
 import { networks } from '@/types/networs';
+import { useBalance } from '@/hooks/useBalance';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Suspense } from 'react';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 function SelectNetwork({
   selectedNetwork,
@@ -91,29 +95,23 @@ const WalletCard = ({
     setTimeout(() => setCopiedIdx(null), 1500);
   };
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const response = await fetch(
-          'https://solana-mainnet.g.alchemy.com/v2/7NsD1ojLjbToYk3irqgL_XA_31-CL5nr',
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              jsonrpc: '2.0',
-              id: 1,
-              method: 'getBalance',
-              params: [wallet.address],
-            }),
-          }
-        );
-        const data = await response.json();
-        console.log('SOL Balance (lamports):', data.result.value);
-      } catch (error) {
-        console.log(error);
-      }
-    })();
-  }, [wallet]);
+  const { data } = useBalance(selectedNetwork, wallet.address);
+
+  let balanceDisplay: React.ReactNode;
+  if (data === undefined) {
+    balanceDisplay = <Skeleton className='h-5 w-16' />;
+  } else if (
+    selectedNetwork === 'solana' &&
+    typeof data?.lamports === 'number'
+  ) {
+    balanceDisplay = <span>{(data.lamports / 1e9).toFixed(4)} SOL</span>;
+  } else if (selectedNetwork === 'ethereum' && data?.wei) {
+    const eth = Number(BigInt(data.wei) / BigInt(Math.pow(10, 14))) / 1e4;
+    balanceDisplay = <span>{eth.toFixed(4)} ETH</span>;
+  } else {
+    balanceDisplay = <span>0</span>;
+  }
+
   return (
     <div
       className={`flex items-center justify-between rounded-lg border border-[#23262F] bg-[#23262F] px-3 py-3 transition-all hover:border-[#4F8CFF] hover:bg-[#232B3A]`}
@@ -149,7 +147,9 @@ const WalletCard = ({
         </div>
       </div>
       <div className='flex items-center gap-2'>
-        <div className='text-sm font-semibold text-[#A3AED0]'>$0.00</div>
+        <div className='text-sm font-semibold text-[#A3AED0]'>
+          {balanceDisplay}
+        </div>
         <button
           onClick={() => {
             setSettingsWallet({
@@ -275,14 +275,17 @@ export default function WalletsPage() {
         </div>
         <div className='mt-6 space-y-4'>
           {wallets.map((wallet, idx) => (
-            <WalletCard
-              key={wallet.address}
-              wallet={wallet}
-              selectedNetwork={selectedNetwork}
-              setSettingsOpen={setSettingsOpen}
-              setSettingsWallet={setSettingsWallet}
-              idx={idx}
-            />
+            <ErrorBoundary key={wallet.address}>
+              <Suspense fallback={<Skeleton className='h-5 w-16' />}>
+                <WalletCard
+                  wallet={wallet}
+                  selectedNetwork={selectedNetwork}
+                  setSettingsOpen={setSettingsOpen}
+                  setSettingsWallet={setSettingsWallet}
+                  idx={idx}
+                />
+              </Suspense>
+            </ErrorBoundary>
           ))}
         </div>
         {/* Add new wallet link */}
