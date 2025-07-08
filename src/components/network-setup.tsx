@@ -3,9 +3,15 @@ import React from 'react';
 import { Button } from './ui/button';
 import { EthereumIcon, SolanaIcon } from './icons';
 import { useWallet } from '@/context/WalletContext';
-import { networks as networksType } from '@/types/networs';
+import type { networks as NetworkKey } from '@/types/networs';
 
-const networks = [
+type NetworkOption = {
+  name: string;
+  key: NetworkKey;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+};
+
+const networkOptions: NetworkOption[] = [
   {
     name: 'Solana',
     key: 'solana',
@@ -21,7 +27,7 @@ const networks = [
 const NetworkSetup: React.FC<{ onNext?: () => void }> = ({ onNext }) => {
   const { state, dispatch } = useWallet();
 
-  const toggleNetwork = (key: networksType) => {
+  const toggleNetwork = (key: NetworkKey) => {
     dispatch({
       type: 'SET_NETWORKS',
       payload: state.selectedNetworks.includes(key)
@@ -37,15 +43,13 @@ const NetworkSetup: React.FC<{ onNext?: () => void }> = ({ onNext }) => {
         You can always add and remove later.
       </p>
       <div className='mb-8 flex w-full max-w-xs flex-col gap-4'>
-        {networks.map(network => {
-          const selected = state.selectedNetworks.includes(
-            network.key as networksType
-          );
+        {networkOptions.map(option => {
+          const selected = state.selectedNetworks.includes(option.key);
           return (
             <div
-              key={network.key}
+              key={option.key}
               className='relative cursor-pointer overflow-hidden rounded-xl'
-              onClick={() => toggleNetwork(network.key as networksType)}
+              onClick={() => toggleNetwork(option.key)}
             >
               <div className='bg-background dark:bg-input/30 dark:border-input dark:hover:bg-input/50 relative z-10 flex items-center gap-3 rounded-xl px-4 py-3'>
                 {/* Selection indicator */}
@@ -58,8 +62,8 @@ const NetworkSetup: React.FC<{ onNext?: () => void }> = ({ onNext }) => {
                     <span className='block h-2 w-2 rounded-full bg-white' />
                   )}
                 </span>
-                <network.icon />
-                <span className='text-base font-medium'>{network.name}</span>
+                <option.icon />
+                <span className='text-base font-medium'>{option.name}</span>
               </div>
             </div>
           );
