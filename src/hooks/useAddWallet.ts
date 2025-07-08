@@ -1,10 +1,11 @@
 import { useWallet } from '@/context/WalletContext';
 import { generateWalletForNetwork } from '@/lib/generateWallets';
+import { networks } from '@/types/networs';
 
 export function useAddWallet() {
   const { state, dispatch } = useWallet();
 
-  async function addWallet(network: string) {
+  async function addWallet(network: networks) {
     const wallet = await generateWalletForNetwork(
       network,
       state.seed,

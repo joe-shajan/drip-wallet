@@ -3,6 +3,7 @@ import React from 'react';
 import { Button } from './ui/button';
 import { EthereumIcon, SolanaIcon } from './icons';
 import { useWallet } from '@/context/WalletContext';
+import { networks as networksType } from '@/types/networs';
 
 const networks = [
   {
@@ -20,7 +21,7 @@ const networks = [
 const NetworkSetup: React.FC<{ onNext?: () => void }> = ({ onNext }) => {
   const { state, dispatch } = useWallet();
 
-  const toggleNetwork = (key: string) => {
+  const toggleNetwork = (key: networksType) => {
     dispatch({
       type: 'SET_NETWORKS',
       payload: state.selectedNetworks.includes(key)
@@ -37,12 +38,14 @@ const NetworkSetup: React.FC<{ onNext?: () => void }> = ({ onNext }) => {
       </p>
       <div className='mb-8 flex w-full max-w-xs flex-col gap-4'>
         {networks.map(network => {
-          const selected = state.selectedNetworks.includes(network.key);
+          const selected = state.selectedNetworks.includes(
+            network.key as networksType
+          );
           return (
             <div
               key={network.key}
               className='relative cursor-pointer overflow-hidden rounded-xl'
-              onClick={() => toggleNetwork(network.key)}
+              onClick={() => toggleNetwork(network.key as networksType)}
             >
               <div className='bg-background dark:bg-input/30 dark:border-input dark:hover:bg-input/50 relative z-10 flex items-center gap-3 rounded-xl px-4 py-3'>
                 {/* Selection indicator */}

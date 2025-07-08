@@ -5,7 +5,10 @@ export const initialState: WalletState = {
   selectedNetworks: [],
   mnemonic: '',
   seed: Buffer.from([]),
-  wallets: {},
+  wallets: {
+    solana: [],
+    ethereum: [],
+  },
 };
 
 export const walletReducer = (
