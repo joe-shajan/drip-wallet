@@ -31,7 +31,8 @@ export class ErrorBoundary extends React.Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    // Optionally log error to an error reporting service
+    // TODO: Optionally log error to an error reporting service
+    console.error(error, errorInfo);
   }
 
   handleRetry = () => {
