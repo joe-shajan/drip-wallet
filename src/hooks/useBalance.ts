@@ -5,7 +5,7 @@ import { networks } from '@/types/networs';
 export function useBalance(network: networks, address: string) {
   return useQuery<BalanceResult, Error>({
     queryKey: ['balance', network, address],
-    queryFn: () => fetchBalance(network, address),
+    queryFn: () => fetchBalance(network, address, 'devnet'),
     enabled: !!address,
     staleTime: 30_000, // 30s
     refetchInterval: 60_000, // 1min

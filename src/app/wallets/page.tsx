@@ -104,10 +104,10 @@ const WalletCard = ({
     selectedNetwork === 'solana' &&
     typeof data?.lamports === 'number'
   ) {
-    balanceDisplay = <span>{(data.lamports / 1e9).toFixed(4)} SOL</span>;
+    balanceDisplay = <span>{data.lamports / 1e9} SOL</span>;
   } else if (selectedNetwork === 'ethereum' && data?.wei) {
     const eth = Number(BigInt(data.wei) / BigInt(Math.pow(10, 14))) / 1e4;
-    balanceDisplay = <span>{eth.toFixed(4)} ETH</span>;
+    balanceDisplay = <span>{eth} ETH</span>;
   } else {
     balanceDisplay = <span>0</span>;
   }
@@ -404,17 +404,32 @@ export default function WalletsPage() {
                     </Button>
                   </div>
                 ) : (
-                  <Button
-                    variant='ghost'
-                    className='w-full bg-[#23262F] text-left hover:bg-[#2A2D36]'
-                    onClick={() => {
-                      setRenaming(true);
-                      setRenameValue(settingsWallet?.name || '');
-                      setTimeout(() => inputRef.current?.focus(), 100);
-                    }}
-                  >
-                    Rename
-                  </Button>
+                  <>
+                    <Button
+                      variant='ghost'
+                      className='w-full bg-[#23262F] text-left hover:bg-[#2A2D36]'
+                      onClick={() => {
+                        // NEW: navigate to the send page with query params
+                        router.push(
+                          `/send?network=${selectedNetwork}&address=${settingsWallet?.address}`
+                        );
+                        setSettingsOpen(false);
+                      }}
+                    >
+                      Send SOL
+                    </Button>
+                    <Button
+                      variant='ghost'
+                      className='w-full bg-[#23262F] text-left hover:bg-[#2A2D36]'
+                      onClick={() => {
+                        setRenaming(true);
+                        setRenameValue(settingsWallet?.name || '');
+                        setTimeout(() => inputRef.current?.focus(), 100);
+                      }}
+                    >
+                      Rename
+                    </Button>
+                  </>
                 )}
                 <Button
                   variant='ghost'
